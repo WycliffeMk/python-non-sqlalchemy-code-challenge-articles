@@ -3,66 +3,69 @@ class Article:
         self.author = author
         self.magazine = magazine
         self.title = title
+
+    def title(self, title):
+          if isinstance(title, str) and 5 <= len(title) <= 50:
+            self.title = title
+            raise ValueError("Title must be a string and between 5 and 50 characters")
+    
+
+    def author(self):
+        return self.author
+       
+    def set_author(self, author):
+        if isinstance(author, Author):
+            self.author = author
+        else:
+            raise ValueError("Author must be an instance of Author class")
         
-class Author:
+        
+class Author():
     def __init__(self, name):
         self.name = name
-        self.articles = []
-
-    def name(self):
-        if not isinstance(name, str) or len(name) == 0:
-            raise Exception("Author name must be a string")
-        return self.name
-        pass
 
     def articles(self):
         return self.articles
+
         pass
 
     def magazines(self):
-        return list(set(article.magazine for article in self.articles))
+        return list({article.magazine for article in self._articles})
         pass
 
     def add_article(self, magazine, title):
-        article = Article(self, magazine, title)
-        self.articles.append(article)
-        return article
+        new_article = Article(self, magazine, title)
+        self._articles.append(new_article)
+        return new_article
         pass
 
     def topic_areas(self):
-        if not self.articles
+        if not self._articles:
             return None
-        return list(set(article.magazine.category for article in self.articles))
+        return list({article.magazine.category for article in self._articles})
         pass
 
 class Magazine:
     def __init__(self, name, category):
         self.name = name
         self.category = category
-        self.articles = []
-        
 
     def articles(self):
         return self.articles
         pass
 
     def contributors(self):
-        return list(set(article.author for article in self.articles))
+        return list({article.author for article in self._articles})
         pass
 
     def article_titles(self):
-        if not title in self.articles:
+        if not self._articles:
             return None
-        return list(set(article.title for article in self.articles))
+        return list({article.title for article in self._articles})
         pass
 
     def contributing_authors(self):
-        authors_counter = {}
-        for article in self.articles():
-            author = article.author
-            authors_counter[author] = authors_counter.get(author, 0) + 1
-
-        contributing_authors = [author for author, count in authors_counter.items() if count > 2]
-        return contributing_authors if contributing_authors else None
-
+        from collections import Counter
+        author_counts = Counter(article.author for article in self._articles)
+        return [author for author, count in author_counts.items() if count > 2] or None
         pass
