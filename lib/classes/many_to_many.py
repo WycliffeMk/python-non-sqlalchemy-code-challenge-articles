@@ -1,71 +1,116 @@
 class Article:
-    def __init__(self, author, magazine, title):
-        self.author = author
-        self.magazine = magazine
-        self.title = title
-
-    def title(self, title):
-          if isinstance(title, str) and 5 <= len(title) <= 50:
-            self.title = title
-            raise ValueError("Title must be a string and between 5 and 50 characters")
+    all= []
     
-
-    def author(self):
-        return self.author
-       
-    def set_author(self, author):
-        if isinstance(author, Author):
-            self.author = author
+    def __init__(self, author, magazine, title):
+        self.author= author
+        self.magazine= magazine
+        if isinstance(title, str) and 5 <= len(title) <= 50:
+            self._title= title
         else:
-            raise ValueError("Author must be an instance of Author class")
+            raise ValueError('title must be...')
+        Article.all.append(self)
+
+    @property
+    def title(self):
+        return self._title
+    
+    @property
+    def author(self):
+        return self._author
+   
+    @author.setter
+    def author(self, value):
+        if isinstance(value, Author):
+            self._author= value
+        else:
+            raise ValueError('author must be...')
         
-        
-class Author():
+    @property
+    def magazine(self):
+        return self._magazine
+   
+    @magazine.setter
+    def magazine(self, value):
+        if isinstance(value, Magazine):
+            self._magazine= value
+        else:
+            raise ValueError('magazine must be...')    
+
+class Author:
+    all= []
     def __init__(self, name):
-        self.name = name
+        if  isinstance(name, str) and len(name) > 0:
+            self._name= name
+        else:
+            raise ValueError('Name must be...')    
+        Author.all.append(self)
+
+    @property
+    def name(self):
+        return self._name      
 
     def articles(self):
-        return self.articles
-
-        pass
-
+        return [article for article in Article.all if article.author== self]  
+    
     def magazines(self):
-        return list({article.magazine for article in self._articles})
-        pass
+        return list(set(article.magazine for article in self.articles()))
 
     def add_article(self, magazine, title):
-        new_article = Article(self, magazine, title)
-        self._articles.append(new_article)
-        return new_article
-        pass
-
+        if not isinstance(magazine, Magazine):
+            raise Exception('article must...')
+        article= Article(self, magazine, title)
+        return article
+    
     def topic_areas(self):
-        if not self._articles:
+        if not self.articles():
             return None
-        return list({article.magazine.category for article in self._articles})
-        pass
+        return list(set(article.magazine.category for article in self.articles()))
 
 class Magazine:
+    all= []
     def __init__(self, name, category):
-        self.name = name
+        self.name= name
         self.category = category
+        Magazine.all.append(self)
+
+    @property
+    def name(self):
+        return self._name 
+    @name.setter
+    def name(self, name):
+        if isinstance (name,str) and 2 <= len(name) <= 16:
+            self._name= name
+        else:
+            raise ValueError('Name must be ...')    
+
+    @property
+    def category(self):
+        return self._category
+    @category.setter
+    def category(self, category):
+        if isinstance(category, str) and len(category) > 0:
+            self._category= category
+        else:
+            raise ValueError('category must be...')    
 
     def articles(self):
-        return self.articles
-        pass
-
+        return [article for article in Article.all if article.magazine== self ]
+    
     def contributors(self):
-        return list({article.author for article in self._articles})
-        pass
+        return list(set(article.author for article in self.articles()))
 
     def article_titles(self):
-        if not self._articles:
+        if not self.articles():
             return None
-        return list({article.title for article in self._articles})
-        pass
+        return [article.title for article in self.articles()]
 
     def contributing_authors(self):
-        from collections import Counter
-        author_counts = Counter(article.author for article in self._articles)
-        return [author for author, count in author_counts.items() if count > 2] or None
-        pass
+        author_counts = {}
+        for article in self.articles():
+            if article.author not in author_counts:
+                author_counts[article.author] = 0
+            author_counts[article.author] += 1
+
+        contributing_authors = [author for author, count in author_counts.items() if count > 2]
+
+        return contributing_authors if contributing_authors else None
